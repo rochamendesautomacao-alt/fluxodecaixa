@@ -60,28 +60,28 @@ export function TransactionRow({
 
   return (
     <TableRow>
-      <TableCell className="text-xs tabular-nums text-muted-foreground">
+      <TableCell className="py-3 pr-1 text-xs tabular-nums text-muted-foreground sm:py-2.5">
         {new Date(transaction.date).toLocaleDateString("pt-BR")}
       </TableCell>
-      <TableCell className="font-medium">
+      <TableCell className="py-3 font-medium sm:py-2.5">
         {transaction.description}
       </TableCell>
-      <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+      <TableCell className="hidden py-3 text-sm text-muted-foreground sm:table-cell sm:py-2.5">
         —
       </TableCell>
       <TableCell
         className={cn(
-          "text-right tabular-nums",
+          "py-3 text-right tabular-nums sm:py-2.5",
           transaction.type === "income"
             ? "text-emerald-600"
             : "text-red-600",
         )}
       >
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex items-center gap-0.5 sm:gap-1">
           {transaction.type === "income" ? (
-            <ArrowUpFromLine className="size-3" />
+            <ArrowUpFromLine className="size-3.5 sm:size-3" />
           ) : (
-            <ArrowDownFromLine className="size-3" />
+            <ArrowDownFromLine className="size-3.5 sm:size-3" />
           )}
           {transaction.amount.toLocaleString("pt-BR", {
             style: "currency",
@@ -89,11 +89,11 @@ export function TransactionRow({
           })}
         </span>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-3 sm:py-2.5">
         <div className="flex justify-end gap-1">
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon-sm"
             onClick={() =>
               router.push(
                 `/transactions/${transaction.id}/edit`,
@@ -104,7 +104,7 @@ export function TransactionRow({
           </Button>
           <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
             <DialogTrigger>
-              <Button variant="ghost" size="icon-xs">
+              <Button variant="ghost" size="icon-sm">
                 <Trash2 className="size-4 text-destructive" />
               </Button>
             </DialogTrigger>
@@ -117,10 +117,11 @@ export function TransactionRow({
                   Esta ação não pode ser desfeita.
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter>
+              <DialogFooter className="flex-col gap-2 sm:flex-row">
                 <Button
                   variant="outline"
                   onClick={() => setDeleteOpen(false)}
+                  className="w-full sm:w-auto"
                 >
                   Cancelar
                 </Button>
@@ -128,6 +129,7 @@ export function TransactionRow({
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={isDeleting}
+                  className="w-full sm:w-auto"
                 >
                   {isDeleting && (
                     <Loader2 className="mr-2 size-4 animate-spin" />

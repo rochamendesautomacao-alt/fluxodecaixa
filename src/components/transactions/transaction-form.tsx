@@ -242,8 +242,8 @@ export function TransactionForm({
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={isSubmitting}>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
           {isSubmitting && (
             <Loader2 className="mr-2 size-4 animate-spin" />
           )}
@@ -253,6 +253,7 @@ export function TransactionForm({
           type="button"
           variant="outline"
           onClick={() => router.back()}
+          className="w-full sm:w-auto"
         >
           Cancelar
         </Button>

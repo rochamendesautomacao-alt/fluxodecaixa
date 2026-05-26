@@ -99,9 +99,11 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <div className="p-6 pb-2">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
+      <div className="px-4 pt-5 pb-1 sm:px-6 sm:pb-2">
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+          Dashboard
+        </h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">
           {currentCompany?.name} &rsaquo; {currentStore?.name}
         </p>
       </div>

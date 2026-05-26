@@ -67,9 +67,9 @@ export function TransactionList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <Select value={typeFilter} onValueChange={(v) => v && setTypeFilter(v)}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-full sm:w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -91,6 +91,7 @@ export function TransactionList() {
 
         <Button
           onClick={() => router.push("/transactions/new")}
+          className="w-full sm:w-auto"
         >
           <Plus className="mr-2 size-4" />
           Novo
@@ -109,6 +110,7 @@ export function TransactionList() {
           <Button
             variant="outline"
             onClick={() => router.push("/transactions/new")}
+            className="w-full sm:w-auto"
           >
             <Plus className="mr-2 size-4" />
             Criar primeiro lançamento
