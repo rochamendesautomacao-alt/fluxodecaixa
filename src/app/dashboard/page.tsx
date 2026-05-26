@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation";
 import { useCompanyStore, useAuth } from "@/hooks";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardGrid } from "@/components/dashboard/dashboard-grid";
+import { fetchIndicators } from "@/lib/services/indicators-service";
 import type { CashTransaction } from "@/types/database";
+import type { IndicatorsResult } from "@/types/indicators";
 
 interface DashboardData {
   balance: number;
   monthlyIncome: number;
   monthlyExpense: number;
   recentTransactions: CashTransaction[];
+  indicators: IndicatorsResult | null;
 }
 
 export default function DashboardPage() {
@@ -57,13 +60,16 @@ export default function DashboardPage() {
     async function fetchData() {
       setDataLoading(true);
 
-      const { data: allTx } = await supabase
-        .from("cash_transactions")
-        .select("*")
-        .eq("store_id", storeId)
-        .order("date", { ascending: false });
+      const [allTxResult, indicatorsResult] = await Promise.all([
+        supabase
+          .from("cash_transactions")
+          .select("*")
+          .eq("store_id", storeId)
+          .order("date", { ascending: false }),
+        fetchIndicators(storeId),
+      ]);
 
-      const txList = (allTx ?? []) as CashTransaction[];
+      const txList = (allTxResult.data ?? []) as CashTransaction[];
 
       const balance = txList.reduce((acc, t) => {
         return t.type === "income" ? acc + t.amount : acc - t.amount;
@@ -86,6 +92,7 @@ export default function DashboardPage() {
         monthlyIncome,
         monthlyExpense,
         recentTransactions: txList.slice(0, 10),
+        indicators: indicatorsResult,
       });
       setDataLoading(false);
     }
@@ -94,7 +101,7 @@ export default function DashboardPage() {
   }, [currentStore]);
 
   if (authLoading || contextLoading) {
-    return <DashboardGrid isLoading balance={0} monthlyIncome={0} monthlyExpense={0} monthlyResult={0} recentTransactions={[]} />;
+    return <DashboardGrid isLoading balance={0} monthlyIncome={0} monthlyExpense={0} monthlyResult={0} recentTransactions={[]} indicators={null} />;
   }
 
   return (
@@ -115,6 +122,7 @@ export default function DashboardPage() {
           (data?.monthlyIncome ?? 0) - (data?.monthlyExpense ?? 0)
         }
         recentTransactions={data?.recentTransactions ?? []}
+        indicators={data?.indicators ?? null}
         isLoading={dataLoading}
       />
     </div>

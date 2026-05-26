@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   X,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { useCompanyStore, useAuth } from "@/hooks";
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Lançamentos", icon: ArrowLeftRight },
+  { href: "/goals", label: "Metas", icon: Target },
 ];
 
 export function Sidebar() {

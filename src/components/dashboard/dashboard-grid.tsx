@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BalanceCard } from "./balance-card";
 import { MonthlySummary } from "./monthly-summary";
 import { RecentTransactions } from "./recent-transactions";
+import { IndicatorsGrid } from "@/components/indicators/indicators-grid";
 import { ListOrdered } from "lucide-react";
 import type { CashTransaction } from "@/types/database";
+import type { IndicatorsResult } from "@/types/indicators";
 
 interface DashboardGridProps {
   balance: number;
@@ -11,6 +13,7 @@ interface DashboardGridProps {
   monthlyExpense: number;
   monthlyResult: number;
   recentTransactions: CashTransaction[];
+  indicators: IndicatorsResult | null;
   isLoading: boolean;
 }
 
@@ -20,6 +23,7 @@ export function DashboardGrid({
   monthlyExpense,
   monthlyResult,
   recentTransactions,
+  indicators,
   isLoading,
 }: DashboardGridProps) {
   return (
@@ -32,6 +36,8 @@ export function DashboardGrid({
         result={monthlyResult}
         isLoading={isLoading}
       />
+
+      <IndicatorsGrid data={indicators} isLoading={isLoading} />
 
       <Card>
         <CardHeader>
