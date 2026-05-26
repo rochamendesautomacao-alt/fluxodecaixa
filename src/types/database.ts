@@ -3,6 +3,7 @@ import type { UUID } from ".";
 // ─── Enums ───────────────────────────────────────────
 export type TransactionType = "income" | "expense";
 export type UserRole = "owner" | "admin" | "manager" | "viewer";
+export type ExpenseFrequency = "monthly" | "yearly" | "weekly" | "daily";
 
 // ─── Companies ───────────────────────────────────────
 export interface Company {
@@ -75,6 +76,32 @@ export interface CashTransaction {
   notes: string | null;
   metadata: Record<string, unknown>;
   created_by: UUID | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── Fixed Expenses ──────────────────────────────────
+export interface FixedExpense {
+  id: UUID;
+  store_id: UUID;
+  name: string;
+  description: string | null;
+  amount: number;
+  frequency: ExpenseFrequency;
+  due_day: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── Financial Goals ─────────────────────────────────
+export interface FinancialGoal {
+  id: UUID;
+  store_id: UUID;
+  monthly_revenue_goal: number;
+  profit_margin_percentage: number;
+  operating_days_per_month: number;
+  monthly_fixed_costs: number;
   created_at: string;
   updated_at: string;
 }

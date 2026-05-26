@@ -4,6 +4,8 @@ import type {
   Store,
   Category,
   CashTransaction,
+  FixedExpense,
+  FinancialGoal,
 } from "./database";
 
 export type Tables = {
@@ -12,6 +14,8 @@ export type Tables = {
   stores: Store;
   categories: Category;
   cash_transactions: CashTransaction;
+  fixed_expenses: FixedExpense;
+  financial_goals: FinancialGoal;
 };
 
 export type TableName = keyof Tables;
