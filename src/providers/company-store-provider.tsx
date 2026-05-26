@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +34,7 @@ export function CompanyStoreProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [currentCompany, setCurrentCompanyState] =
     useState<Company | null>(null);
   const [currentStore, setCurrentStoreState] = useState<Store | null>(null);

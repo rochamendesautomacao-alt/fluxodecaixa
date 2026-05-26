@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { TransactionForm } from "@/components/transactions/transaction-form";
 import type { CashTransaction } from "@/types/database";
@@ -14,7 +14,7 @@ interface EditTransactionFormProps {
 export function EditTransactionForm({
   transactionId,
 }: EditTransactionFormProps) {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [tx, setTx] = useState<CashTransaction | null>(null);
   const [loading, setLoading] = useState(true);
 

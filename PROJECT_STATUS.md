@@ -11,11 +11,42 @@
 - [x] FASE_CASHFLOW — CRUD transações (list, form, row, pages)
 - [x] FASE_MOBILE — Sidebar, responsive layout, touch targets
 - [x] FASE_INDICADORES — Metas, break-even, progresso, lucro, calculos
+- [x] FASE_DEPLOY — Config Vercel, env vars, seguranca, guia
+- [x] FASE_HARDENING — Revisão completa produção (ver abaixo)
+
+## Hardening — O que foi feito
+
+### Segurança
+- [x] Removido `databasesupabase.txt` com secrets expostos (adicionado ao .gitignore)
+- [x] Headers de segurança: X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+- [x] Sem SQL injection (todas queries via Supabase SDK)
+- [x] Sem XSS (nenhum `dangerouslySetInnerHTML`)
+- [x] poweredByHeader desligado
+
+### Performance
+- [x] `useMemo(() => createSupabaseBrowserClient(), [])` em todos os componentes client
+- [x] `indicators-service.ts`: cliente único reutilizado nas 3 queries paralelas
+- [x] productionBrowserSourceMaps: false
+- [x] Imagens otimizadas (AVIF/WebP)
+
+### Acessibilidade
+- [x] `aria-label` nos botões de editar e excluir transações
+- [x] `<label htmlFor>` no campo de busca
+- [x] DialogTrigger usa `render` prop em vez de aninhar `<button>`
+- [x] `sr-only` em português ("Fechar")
+- [x] Error boundary global (fallback UI + botão recarregar)
+
+### Código
+- [x] Break-even duplicado removido do `financial-goals-service.ts`
+- [x] `indicators-service.ts` adicionado ao barrel export
+- [x] `CardContent` import não utilizado removido de select-company e select-store
+- [x] `console.log` removido do service worker
+- [x] Mobile drawer com `max-w-[85vw]` para telas muito estreitas
 
 ## Pendente
-- [ ] FASE_PWA — Manifest, service worker, instalável
-- [ ] FASE_DEPLOY — Vercel, variáveis de ambiente
-- [ ] FASE_HARDENING — Performance, segurança, SEO, acessibilidade
+- [ ] FASE_PWA — Rever/refinar manifest, SW, instalável
+- [ ] Git push — Autenticação GitHub pendente
 
-## Fase Atual
-FASE_INDICADORES (concluída)
+## Observações
+- Git push bloqueado: `rochamendesautomacao-alt` sem permissão no repo `RmGuit/fluxodecaixa`
+- Solução: `git remote set-url origin https://<TOKEN>@github.com/RmGuit/fluxodecaixa.git` (usar Personal Access Token)

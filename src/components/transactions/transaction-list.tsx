@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useCompanyStore } from "@/hooks";
@@ -28,7 +28,7 @@ import { Plus, Search, Loader2 } from "lucide-react";
 export function TransactionList() {
   const router = useRouter();
   const { currentStore } = useCompanyStore();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [transactions, setTransactions] = useState<
     CashTransaction[]
@@ -81,7 +81,11 @@ export function TransactionList() {
 
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <label htmlFor="search-description" className="sr-only">
+            Buscar por descrição
+          </label>
           <Input
+            id="search-description"
             placeholder="Buscar por descrição..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}

@@ -85,7 +85,7 @@ export function Sidebar() {
             className="absolute inset-0 bg-black/20 backdrop-blur-sm"
             onClick={close}
           />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-popover shadow-lg animate-in slide-in-from-left duration-200">
+          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-popover shadow-lg animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between border-b px-4 py-3">
               <span className="text-sm font-semibold">Menu</span>
               <button

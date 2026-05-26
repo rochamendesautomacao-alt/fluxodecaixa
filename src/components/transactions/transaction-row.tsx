@@ -94,6 +94,7 @@ export function TransactionRow({
           <Button
             variant="ghost"
             size="icon-sm"
+            aria-label="Editar lançamento"
             onClick={() =>
               router.push(
                 `/transactions/${transaction.id}/edit`,
@@ -103,10 +104,11 @@ export function TransactionRow({
             <Pencil className="size-4" />
           </Button>
           <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger>
-              <Button variant="ghost" size="icon-sm">
-                <Trash2 className="size-4 text-destructive" />
-              </Button>
+            <DialogTrigger
+              aria-label="Excluir lançamento"
+              render={<Button variant="ghost" size="icon-sm" />}
+            >
+              <Trash2 className="size-4 text-destructive" />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

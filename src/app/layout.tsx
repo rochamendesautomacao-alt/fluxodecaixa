@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/providers";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { appConfig } from "@/config/app";
 import "./globals.css";
 
@@ -60,11 +61,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <Providers>
-          <RegisterSW />
-          <InstallPrompt />
-          {children}
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <RegisterSW />
+            <InstallPrompt />
+            {children}
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

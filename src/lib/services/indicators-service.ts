@@ -1,4 +1,3 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { IndicatorsInput, IndicatorsResult } from "@/types/indicators";
 
@@ -85,12 +84,11 @@ function getCurrentMonthRange() {
 }
 
 async function getMonthlyTransactions(
+  supabase: ReturnType<typeof createSupabaseBrowserClient>,
   storeId: string,
   firstDay: string,
   lastDay: string,
 ) {
-  const supabase = createSupabaseBrowserClient();
-
   const { data } = await supabase
     .from("cash_transactions")
     .select("amount, type")
@@ -111,9 +109,10 @@ async function getMonthlyTransactions(
   return { income, expense };
 }
 
-async function getActiveFixedCosts(storeId: string) {
-  const supabase = createSupabaseBrowserClient();
-
+async function getActiveFixedCosts(
+  supabase: ReturnType<typeof createSupabaseBrowserClient>,
+  storeId: string,
+) {
   const { data } = await supabase
     .from("fixed_expenses")
     .select("amount")
@@ -124,9 +123,10 @@ async function getActiveFixedCosts(storeId: string) {
   return items.reduce((sum, f) => sum + Number(f.amount), 0);
 }
 
-async function getGoals(storeId: string) {
-  const supabase = createSupabaseBrowserClient();
-
+async function getGoals(
+  supabase: ReturnType<typeof createSupabaseBrowserClient>,
+  storeId: string,
+) {
   const { data } = await supabase
     .from("financial_goals")
     .select("*")
@@ -147,11 +147,12 @@ export async function fetchIndicators(
   storeId: string,
 ): Promise<IndicatorsResult> {
   const { firstDay, lastDay } = getCurrentMonthRange();
+  const supabase = createSupabaseBrowserClient();
 
   const [monthly, fixedCostsDirect, goals] = await Promise.all([
-    getMonthlyTransactions(storeId, firstDay, lastDay),
-    getActiveFixedCosts(storeId),
-    getGoals(storeId),
+    getMonthlyTransactions(supabase, storeId, firstDay, lastDay),
+    getActiveFixedCosts(supabase, storeId),
+    getGoals(supabase, storeId),
   ]);
 
   const monthlyRevenueGoal = goals?.monthlyRevenueGoal ?? 0;

@@ -21,9 +21,9 @@ export function RegisterSW() {
             const sw = reg.installing;
             if (sw) {
               sw.addEventListener("statechange", () => {
-                if (sw.state === "installed") {
-                  console.log("PWA pronto para uso offline");
-                }
+                  if (sw.state === "installed") {
+                    // SW ready
+                  }
               });
             }
           });

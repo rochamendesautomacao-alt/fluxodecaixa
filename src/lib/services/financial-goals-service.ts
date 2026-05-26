@@ -55,43 +55,4 @@ export async function updateFinancialGoal(
   return data as FinancialGoal;
 }
 
-// ─── Financial calculations (future use) ─────────────
-
-interface BreakEvenResult {
-  breakEvenRevenue: number;
-  dailyTarget: number;
-  monthlyProfitProjection: number;
-  profitMarginAmount: number;
-}
-
-export function calculateBreakEven(
-  monthlyFixedCosts: number,
-  profitMarginPercentage: number,
-  operatingDays: number,
-): BreakEvenResult {
-  const marginDecimal = profitMarginPercentage / 100;
-  const variableCostRate = 1 - marginDecimal;
-
-  const breakEvenRevenue =
-    variableCostRate > 0
-      ? Math.round(monthlyFixedCosts / variableCostRate * 100) / 100
-      : monthlyFixedCosts;
-
-  const dailyTarget =
-    operatingDays > 0
-      ? Math.round(breakEvenRevenue / operatingDays * 100) / 100
-      : 0;
-
-  const monthlyProfitProjection =
-    Math.round(breakEvenRevenue * marginDecimal * 100) / 100;
-
-  const profitMarginAmount =
-    Math.round(breakEvenRevenue * marginDecimal * 100) / 100;
-
-  return {
-    breakEvenRevenue,
-    dailyTarget,
-    monthlyProfitProjection,
-    profitMarginAmount,
-  };
-}
+// ─── Calculations moved to indicators-service.ts ─────

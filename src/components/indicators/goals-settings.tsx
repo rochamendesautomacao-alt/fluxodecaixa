@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCompanyStore } from "@/hooks";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -17,7 +17,7 @@ import type { FinancialGoal } from "@/types/database";
 export function GoalsSettings() {
   const router = useRouter();
   const { currentStore } = useCompanyStore();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
