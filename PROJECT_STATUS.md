@@ -10,12 +10,12 @@
 - [x] FASE_DASHBOARD — BalanceCard, MonthlySummary, RecentTransactions
 - [x] FASE_CASHFLOW — CRUD transações (list, form, row, pages)
 - [x] FASE_MOBILE — Sidebar, responsive layout, touch targets
+- [x] FASE_INDICADORES — Metas, break-even, progresso, lucro, calculos
 
 ## Pendente
-- [ ] FASE_INDICADORES — Metas, ponto de equilíbrio, indicadores
 - [ ] FASE_PWA — Manifest, service worker, instalável
 - [ ] FASE_DEPLOY — Vercel, variáveis de ambiente
 - [ ] FASE_HARDENING — Performance, segurança, SEO, acessibilidade
 
 ## Fase Atual
-FASE_INDICADORES
+FASE_INDICADORES (concluída)
