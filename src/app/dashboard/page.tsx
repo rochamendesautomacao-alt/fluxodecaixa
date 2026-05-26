@@ -1,57 +1,120 @@
 "use client";
 
-import { useCompanyStore, useAuth } from "@/hooks";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCompanyStore, useAuth } from "@/hooks";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { DashboardGrid } from "@/components/dashboard/dashboard-grid";
+import type { CashTransaction } from "@/types/database";
+
+interface DashboardData {
+  balance: number;
+  monthlyIncome: number;
+  monthlyExpense: number;
+  recentTransactions: CashTransaction[];
+}
 
 export default function DashboardPage() {
-  const { currentCompany, currentStore, isLoading } =
+  const { currentCompany, currentStore, isLoading: contextLoading } =
     useCompanyStore();
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
+
   useEffect(() => {
-    if (authLoading || isLoading) return;
+    if (authLoading || contextLoading) return;
 
     if (!user) {
       router.push("/login");
       return;
     }
-
     if (!currentCompany) {
       router.push("/select-company");
       return;
     }
-
     if (!currentStore) {
       router.push("/select-store");
       return;
     }
-  }, [
-    user,
-    currentCompany,
-    currentStore,
-    authLoading,
-    isLoading,
-    router,
-  ]);
+  }, [user, currentCompany, currentStore, authLoading, contextLoading, router]);
 
-  if (authLoading || isLoading || !currentStore) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
-      </div>
-    );
+  useEffect(() => {
+    const store = currentStore;
+    if (!store) return;
+
+    const supabase = createSupabaseBrowserClient();
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+      .toISOString()
+      .split("T")[0];
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0];
+
+    const storeId = store!.id;
+    async function fetchData() {
+      setDataLoading(true);
+
+      const { data: allTx } = await supabase
+        .from("cash_transactions")
+        .select("*")
+        .eq("store_id", storeId)
+        .order("date", { ascending: false });
+
+      const txList = (allTx ?? []) as CashTransaction[];
+
+      const balance = txList.reduce((acc, t) => {
+        return t.type === "income" ? acc + t.amount : acc - t.amount;
+      }, 0);
+
+      const monthTx = txList.filter(
+        (t) => t.date >= firstDay && t.date <= lastDay,
+      );
+
+      const monthlyIncome = monthTx
+        .filter((t) => t.type === "income")
+        .reduce((acc, t) => acc + t.amount, 0);
+
+      const monthlyExpense = monthTx
+        .filter((t) => t.type === "expense")
+        .reduce((acc, t) => acc + t.amount, 0);
+
+      setData({
+        balance,
+        monthlyIncome,
+        monthlyExpense,
+        recentTransactions: txList.slice(0, 10),
+      });
+      setDataLoading(false);
+    }
+
+    fetchData();
+  }, [currentStore]);
+
+  if (authLoading || contextLoading) {
+    return <DashboardGrid isLoading balance={0} monthlyIncome={0} monthlyExpense={0} monthlyResult={0} recentTransactions={[]} />;
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <h1 className="text-3xl font-bold tracking-tight">
-        Dashboard
-      </h1>
-      <p className="text-muted-foreground">
-        {currentCompany?.name} &rsaquo; {currentStore?.name}
-      </p>
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="p-6 pb-2">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">
+          {currentCompany?.name} &rsaquo; {currentStore?.name}
+        </p>
+      </div>
+      <DashboardGrid
+        balance={data?.balance ?? 0}
+        monthlyIncome={data?.monthlyIncome ?? 0}
+        monthlyExpense={data?.monthlyExpense ?? 0}
+        monthlyResult={
+          (data?.monthlyIncome ?? 0) - (data?.monthlyExpense ?? 0)
+        }
+        recentTransactions={data?.recentTransactions ?? []}
+        isLoading={dataLoading}
+      />
     </div>
   );
 }
