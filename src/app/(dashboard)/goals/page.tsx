@@ -1,5 +1,7 @@
 import { GoalsSettings } from "@/components/indicators/goals-settings";
 
+export const dynamic = "force-dynamic";
+
 export default function GoalsPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4 sm:gap-6 sm:p-6">

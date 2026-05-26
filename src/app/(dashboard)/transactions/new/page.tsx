@@ -1,5 +1,7 @@
 import { TransactionForm } from "@/components/transactions/transaction-form";
 
+export const dynamic = "force-dynamic";
+
 export default function NewTransactionPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4 sm:gap-6 sm:p-6">

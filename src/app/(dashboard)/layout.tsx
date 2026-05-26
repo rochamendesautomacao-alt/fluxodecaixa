@@ -2,6 +2,8 @@ import { AuthGuard } from "@/components/auth/auth-guard";
 import { ContextHeader } from "@/components/company/context-header";
 import { Sidebar } from "@/components/layout/sidebar";
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardLayout({
   children,
 }: {
