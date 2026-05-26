@@ -1,4 +1,5 @@
 import { AuthGuard } from "@/components/auth/auth-guard";
+import { ContextHeader } from "@/components/company/context-header";
 
 export default function DashboardLayout({
   children,
@@ -7,8 +8,9 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="flex flex-1">
-        <main className="flex-1">{children}</main>
+      <div className="flex flex-1 flex-col">
+        <ContextHeader />
+        <main className="flex flex-1">{children}</main>
       </div>
     </AuthGuard>
   );
