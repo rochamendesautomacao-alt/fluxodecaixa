@@ -18,7 +18,7 @@ interface CompanyStoreContextValue {
   currentStore: Store | null;
   companies: Company[];
   stores: Store[];
-  setCurrentCompany: (company: Company) => void;
+  setCurrentCompany: (company: Company) => Promise<void>;
   setCurrentStore: (store: Store) => void;
   isLoading: boolean;
   refreshStores: () => Promise<void>;
@@ -51,13 +51,26 @@ export function CompanyStoreProvider({
         STORAGE_KEYS.STORE_ID,
       );
 
+      // Usa RPC security definer para evitar recursão infinita no RLS
       const { data: userCompanies } = await supabase
-        .from("companies")
-        .select("*")
-        .order("name");
+        .rpc("get_user_companies");
 
-      const companiesList = (userCompanies ??
-        []) as Company[];
+      const companiesList = ((userCompanies ?? []) as any[]).map(
+        (c: any) =>
+          ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            document: null,
+            phone: null,
+            email: null,
+            logo_url: null,
+            is_active: true,
+            settings: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }) as Company,
+      );
       setCompanies(companiesList);
 
       if (savedCompanyId && companiesList.length > 0) {
@@ -67,10 +80,9 @@ export function CompanyStoreProvider({
         if (match) {
           setCurrentCompanyState(match);
           const { data: storeData } = await supabase
-            .from("stores")
-            .select("*")
-            .eq("company_id", match.id)
-            .order("name");
+            .rpc("get_company_stores", {
+              p_company_id: match.id,
+            });
 
           const storeList = (storeData ?? []) as Store[];
           setStores(storeList);
@@ -92,18 +104,22 @@ export function CompanyStoreProvider({
   }, [supabase]);
 
   const setCurrentCompany = useCallback(
-    (company: Company) => {
+    async (company: Company) => {
       setCurrentCompanyState(company);
       setCurrentStoreState(null);
-      setStores([]);
       localStorage.setItem(
         STORAGE_KEYS.COMPANY_ID,
         company.id,
       );
       localStorage.removeItem(STORAGE_KEYS.STORE_ID);
+      const { data: storeData } = await supabase
+        .rpc("get_company_stores", {
+          p_company_id: company.id,
+        });
+      setStores((storeData ?? []) as Store[]);
       router.push("/select-store");
     },
-    [router],
+    [router, supabase],
   );
 
   const setCurrentStore = useCallback(
@@ -118,10 +134,9 @@ export function CompanyStoreProvider({
   const refreshStores = useCallback(async () => {
     if (!currentCompany) return;
     const { data } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("company_id", currentCompany.id)
-      .order("name");
+      .rpc("get_company_stores", {
+        p_company_id: currentCompany.id,
+      });
     setStores((data ?? []) as Store[]);
   }, [currentCompany, supabase]);
 

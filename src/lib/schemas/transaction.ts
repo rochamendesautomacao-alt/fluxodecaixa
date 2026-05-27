@@ -3,6 +3,7 @@ import { z } from "zod";
 export const createTransactionSchema = z.object({
   store_id: z.string().uuid(),
   category_id: z.string().uuid().nullable().optional(),
+  employee_id: z.string().uuid().nullable().optional(),
   description: z
     .string()
     .min(1, "Descrição é obrigatória")

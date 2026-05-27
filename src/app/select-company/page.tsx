@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCompanyStore } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,16 +10,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus, Loader2 } from "lucide-react";
 
 export default function SelectCompanyPage() {
+  const router = useRouter();
   const { companies, setCurrentCompany, isLoading } =
     useCompanyStore();
+
+  useEffect(() => {
+    if (!isLoading && companies.length === 0) {
+      router.push("/create-company");
+    }
+  }, [isLoading, companies, router]);
 
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -48,9 +57,9 @@ export default function SelectCompanyPage() {
                     <CardTitle className="text-base">
                       {company.name}
                     </CardTitle>
-                    {company.document && (
+                    {company.slug && (
                       <CardDescription>
-                        {company.document}
+                        {company.slug}
                       </CardDescription>
                     )}
                   </div>
@@ -60,9 +69,13 @@ export default function SelectCompanyPage() {
           ))}
         </div>
 
-        <Button variant="outline" className="w-full" disabled>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => router.push("/create-company")}
+        >
           <Plus className="mr-2 size-4" />
-          Nova empresa (em breve)
+          Nova empresa
         </Button>
       </div>
     </div>

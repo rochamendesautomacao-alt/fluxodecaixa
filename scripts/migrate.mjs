@@ -12,14 +12,17 @@ if (!DB_URL) {
   process.exit(1);
 }
 
+const migrationFile = process.argv[2] || "001_schema.sql";
+const filePath = `supabase/migrations/${migrationFile}`;
+
 const client = new Client({ connectionString: DB_URL });
 
 try {
   await client.connect();
   console.log("Conectado ao banco.");
 
-  const sql = readFileSync("supabase/migrations/001_schema.sql", "utf-8");
-  console.log("Aplicando migração...");
+  const sql = readFileSync(filePath, "utf-8");
+  console.log(`Aplicando migração: ${filePath}...`);
 
   await client.query(sql);
   console.log("Migração aplicada com sucesso!");

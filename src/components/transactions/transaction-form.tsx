@@ -18,7 +18,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import type { Category } from "@/types/database";
 import { toast } from "sonner";
@@ -30,6 +29,11 @@ interface TransactionFormProps {
   mode: "create" | "edit";
 }
 
+interface Employee {
+  id: string;
+  name: string;
+}
+
 export function TransactionForm({
   defaultValues,
   transactionId,
@@ -39,10 +43,19 @@ export function TransactionForm({
   const { currentStore } = useCompanyStore();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState<
     "income" | "expense" | ""
   >(defaultValues?.type ?? "");
+
+  const today = useMemo(
+    () =>
+      new Date().toLocaleDateString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+      }),
+    [],
+  );
 
   const {
     register,
@@ -59,8 +72,9 @@ export function TransactionForm({
       type: undefined,
       date: new Date().toISOString().split("T")[0],
       category_id: null,
+      employee_id: null,
       due_date: null,
-      notes: null,
+      notes: `Lançamento de ${today}`,
       ...defaultValues,
     },
   });
@@ -84,6 +98,17 @@ export function TransactionForm({
       .then(({ data }) => setCategories((data ?? []) as Category[]));
   }, [currentStore, watchType, selectedType, supabase]);
 
+  useEffect(() => {
+    if (!currentStore) return;
+    supabase
+      .from("employees")
+      .select("id, name")
+      .eq("store_id", currentStore.id)
+      .eq("is_active", true)
+      .order("name")
+      .then(({ data }) => setEmployees((data ?? []) as Employee[]));
+  }, [currentStore, supabase]);
+
   async function onSubmit(data: CreateTransactionInput) {
     if (!currentStore) return;
     setIsSubmitting(true);
@@ -92,6 +117,7 @@ export function TransactionForm({
       ...data,
       store_id: currentStore.id,
       category_id: data.category_id || null,
+      employee_id: data.employee_id || null,
       due_date: data.due_date || null,
       notes: data.notes || null,
     };
@@ -108,7 +134,7 @@ export function TransactionForm({
       }
 
       toast.success("Lançamento criado");
-      router.push("/transactions");
+      router.push("/financeiro");
     } else if (transactionId) {
       const { error } = await supabase
         .from("cash_transactions")
@@ -122,7 +148,7 @@ export function TransactionForm({
       }
 
       toast.success("Lançamento atualizado");
-      router.push("/transactions");
+      router.push("/financeiro");
     }
   }
 
@@ -131,8 +157,106 @@ export function TransactionForm({
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-6"
     >
+      {/* Tipo — Entrada / Saída */}
+      <div className="flex flex-col gap-2">
+        <Label>Tipo</Label>
+        <input type="hidden" {...register("type")} />
+        <div className="flex rounded-lg border p-0.5" role="radiogroup">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={watchType === "income"}
+            onClick={() => {
+              setValue("type", "income");
+              setSelectedType("income");
+              setValue("category_id", null);
+            }}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              watchType === "income"
+                ? "bg-emerald-500 text-white shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Entrada
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={watchType === "expense"}
+            onClick={() => {
+              setValue("type", "expense");
+              setSelectedType("expense");
+              setValue("category_id", null);
+            }}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              watchType === "expense"
+                ? "bg-rose-500 text-white shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Saída
+          </button>
+        </div>
+        {errors.type && (
+          <p className="text-sm text-destructive">{errors.type.message}</p>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2 sm:col-span-2">
+        {/* Categoria */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="category_id">Categoria</Label>
+          <Select
+            value={watch("category_id") ?? undefined}
+            onValueChange={(v) => setValue("category_id", v)}
+          >
+            <SelectTrigger>
+              {categories.find((c) => c.id === watch("category_id"))?.name ?? "Selecione"}
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+              {categories.length === 0 && (
+                <SelectItem value="_none" disabled>
+                  {selectedType
+                    ? "Nenhuma categoria"
+                    : "Selecione o tipo primeiro"}
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Funcionário (opcional) */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="employee_id">Funcionário</Label>
+          <Select
+            value={watch("employee_id") ?? undefined}
+            onValueChange={(v) => setValue("employee_id", v)}
+          >
+            <SelectTrigger>
+              {employees.find((e) => e.id === watch("employee_id"))?.name ?? "Opcional"}
+            </SelectTrigger>
+            <SelectContent>
+              {employees.map((emp) => (
+                <SelectItem key={emp.id} value={emp.id}>
+                  {emp.name}
+                </SelectItem>
+              ))}
+              {employees.length === 0 && (
+                <SelectItem value="_none" disabled>
+                  Nenhum funcionário
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Descrição */}
+        <div className="flex flex-col gap-2">
           <Label htmlFor="description">Descrição</Label>
           <Input
             id="description"
@@ -146,32 +270,7 @@ export function TransactionForm({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="type">Tipo</Label>
-          <Select
-            value={watchType || selectedType || undefined}
-            onValueChange={(v) => {
-              if (!v) return;
-              setValue("type", v as "income" | "expense");
-              setSelectedType(v as "income" | "expense");
-              setValue("category_id", null);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="income">Entrada</SelectItem>
-              <SelectItem value="expense">Saída</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.type && (
-            <p className="text-sm text-destructive">
-              {errors.type.message}
-            </p>
-          )}
-        </div>
-
+        {/* Valor */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="amount">Valor (R$)</Label>
           <Input
@@ -189,74 +288,36 @@ export function TransactionForm({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="category_id">Categoria</Label>
-          <Select
-            value={watch("category_id") ?? undefined}
-            onValueChange={(v) => setValue("category_id", v)} // v pode ser null (limpa selecao)
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-              {categories.length === 0 && (
-                <SelectItem value="_none" disabled>
-                  Nenhuma categoria
-                </SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="date">Data</Label>
-          <Input id="date" type="date" {...register("date")} />
-          {errors.date && (
-            <p className="text-sm text-destructive">
-              {errors.date.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="due_date">Vencimento</Label>
-          <Input
-            id="due_date"
-            type="date"
-            {...register("due_date")}
-          />
-        </div>
-
+        {/* Observação */}
         <div className="flex flex-col gap-2 sm:col-span-2">
           <Label htmlFor="notes">Observação</Label>
           <Input
             id="notes"
-            placeholder="Opicional"
+            placeholder="Opcional"
             {...register("notes")}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-          {isSubmitting && (
-            <Loader2 className="mr-2 size-4 animate-spin" />
-          )}
-          {mode === "create" ? "Criar lançamento" : "Salvar"}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          className="w-full sm:w-auto"
-        >
-          Cancelar
-        </Button>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground">
+          Data: <span className="font-medium">{today}</span>
+        </p>
+        <div className="flex gap-2">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
+            {mode === "create" ? "Lançar" : "Salvar"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+          >
+            Cancelar
+          </Button>
+        </div>
       </div>
     </form>
   );

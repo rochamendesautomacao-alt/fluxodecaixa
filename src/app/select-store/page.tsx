@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCompanyStore } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
   Store as StoreIcon,
   ArrowLeft,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -20,10 +22,16 @@ export default function SelectStorePage() {
     useCompanyStore();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && stores.length === 0) {
+      router.push("/create-store");
+    }
+  }, [isLoading, stores, router]);
+
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -74,9 +82,13 @@ export default function SelectStorePage() {
             <ArrowLeft className="mr-2 size-4" />
             Trocar empresa
           </Button>
-          <Button variant="outline" className="flex-1" disabled>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => router.push("/create-store")}
+          >
             <Plus className="mr-2 size-4" />
-            Nova loja (em breve)
+            Nova loja
           </Button>
         </div>
       </div>

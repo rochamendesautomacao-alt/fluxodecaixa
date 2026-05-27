@@ -66,6 +66,7 @@ export interface CashTransaction {
   id: UUID;
   store_id: UUID;
   category_id: UUID | null;
+  employee_id: UUID | null;
   description: string;
   amount: number;
   type: TransactionType;
