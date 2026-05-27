@@ -4,6 +4,5 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "regions": ["gru1"],
-  "nodeVersion": "22.x",
   "crons": []
 }
