@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.9.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -44,12 +44,8 @@
     "pg": "^8.21.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "shadcn": "^4.8.0",
     "supabase": "^2.101.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "overrides": {
-    "node-domexception": "1.0.0"
   }
 }
